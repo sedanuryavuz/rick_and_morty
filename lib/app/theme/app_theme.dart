@@ -8,21 +8,14 @@ class AppTheme {
       scaffoldBackgroundColor: AppColors.background,
       colorScheme: const ColorScheme.dark(
         primary: AppColors.primary,
-        secondary: AppColors.primarySoft,
+        secondary: AppColors.primaryDark,
         surface: AppColors.surface,
       ),
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        centerTitle: true,
         surfaceTintColor: Colors.transparent,
         foregroundColor: AppColors.textPrimary,
-      ),
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: AppColors.background,
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: AppColors.textSecondary,
-        type: BottomNavigationBarType.fixed,
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -48,7 +41,6 @@ class AppTheme {
           ),
         ),
       ),
-      dividerColor: AppColors.divider,
     );
   }
 }
