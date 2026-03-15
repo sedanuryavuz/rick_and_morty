@@ -1,7 +1,9 @@
+import '../../core/enums/character_status.dart';
+
 class CharacterModel {
   final int id;
   final String name;
-  final String status;
+  final CharacterStatus status;
   final String species;
   final String type;
   final String gender;
@@ -27,7 +29,7 @@ class CharacterModel {
     return CharacterModel(
       id: json['id'] as int? ?? 0,
       name: json['name'] as String? ?? '',
-      status: json['status'] as String? ?? '',
+      status: CharacterStatus.fromString(json['status'] as String? ?? ''),
       species: json['species'] as String? ?? '',
       type: json['type'] as String? ?? '',
       gender: json['gender'] as String? ?? '',

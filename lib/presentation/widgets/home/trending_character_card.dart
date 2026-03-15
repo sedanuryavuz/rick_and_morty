@@ -1,31 +1,18 @@
 import 'package:flutter/material.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_text_styles.dart';
+import '../../../data/models/character_model.dart';
 
 class TrendingCharacterCard extends StatelessWidget {
-  final String imageUrl;
-  final String name;
-  final String status;
+  final CharacterModel character;
   final VoidCallback onTap;
 
   const TrendingCharacterCard({
     super.key,
-    required this.imageUrl,
-    required this.name,
-    required this.status,
+    required this.character,
     required this.onTap,
   });
 
-  Color _statusColor() {
-    switch (status.toLowerCase()) {
-      case 'alive':
-        return AppColors.alive;
-      case 'dead':
-        return AppColors.dead;
-      default:
-        return AppColors.unknown;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +33,7 @@ class TrendingCharacterCard extends StatelessWidget {
                 top: Radius.circular(24),
               ),
               child: Image.network(
-                imageUrl,
+                character.image,
                 width: 150,
                 height: 140,
                 fit: BoxFit.cover,
@@ -58,7 +45,7 @@ class TrendingCharacterCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    name,
+                    character.name,
                     style: AppTextStyles.cardTitle.copyWith(fontSize: 15),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -70,13 +57,13 @@ class TrendingCharacterCard extends StatelessWidget {
                         width: 8,
                         height: 8,
                         decoration: BoxDecoration(
-                          color: _statusColor(),
+                          color: character.status.color,
                           shape: BoxShape.circle,
                         ),
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        status,
+                        character.status.label,
                         style: AppTextStyles.label.copyWith(
                           color: AppColors.textSecondary,
                         ),

@@ -1,33 +1,18 @@
 import 'package:flutter/material.dart';
+
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_text_styles.dart';
+import '../../../data/models/character_model.dart';
 
 class CharacterPreviewCard extends StatelessWidget {
-  final String imageUrl;
-  final String name;
-  final String status;
-  final String species;
+  final CharacterModel character;
   final VoidCallback? onTap;
 
   const CharacterPreviewCard({
     super.key,
-    required this.imageUrl,
-    required this.name,
-    required this.status,
-    required this.species,
+    required this.character,
     this.onTap,
   });
-
-  Color _statusColor() {
-    switch (status.toLowerCase()) {
-      case 'alive':
-        return AppColors.alive;
-      case 'dead':
-        return AppColors.dead;
-      default:
-        return AppColors.unknown;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +33,7 @@ class CharacterPreviewCard extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(18),
                 child: Image.network(
-                  imageUrl,
+                  character.image,
                   width: 70,
                   height: 70,
                   fit: BoxFit.cover,
@@ -70,7 +55,7 @@ class CharacterPreviewCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      name,
+                      character.name,
                       style: AppTextStyles.cardTitle,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -82,14 +67,14 @@ class CharacterPreviewCard extends StatelessWidget {
                           width: 9,
                           height: 9,
                           decoration: BoxDecoration(
-                            color: _statusColor(),
+                            color: character.status.color,
                             shape: BoxShape.circle,
                           ),
                         ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            status,
+                            character.status.label,
                             style: AppTextStyles.cardSubtitle,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -98,7 +83,7 @@ class CharacterPreviewCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      species,
+                      character.species,
                       style: AppTextStyles.label,
                       overflow: TextOverflow.ellipsis,
                     ),

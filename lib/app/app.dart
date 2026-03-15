@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rick_and_morty/presentation/pages/discovery_home_page.dart';
 import 'theme/app_theme.dart';
 
 class MyApp extends StatelessWidget {
@@ -10,7 +11,7 @@ class MyApp extends StatelessWidget {
       title: 'Rick & Morty',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
-      home: const MyApp(),
+      home: const DiscoveryHomePage(),
     );
   }
 }

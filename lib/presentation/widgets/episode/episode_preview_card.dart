@@ -6,20 +6,17 @@ class EpisodePreviewCard extends StatelessWidget {
   final String name;
   final String code;
   final String airDate;
-  final VoidCallback onTap;
 
   const EpisodePreviewCard({
     super.key,
     required this.name,
     required this.code,
     required this.airDate,
-    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
       child: Container(
         width: 200,
         padding: const EdgeInsets.all(18),

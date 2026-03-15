@@ -12,16 +12,17 @@ import '../../data/services/character_service.dart';
 import '../widgets/character/character_preview_card.dart';
 import '../widgets/common/app_search_bar.dart';
 import '../widgets/common/filter_chip.dart';
+import '../widgets/common/scroll_to_top_button.dart';
 import 'character_detail_page.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class CharacterListPage extends StatefulWidget {
+  const CharacterListPage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<CharacterListPage> createState() => _CharacterListPageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _CharacterListPageState extends State<CharacterListPage> {
   late final CharacterRepository _repository;
   late final ScrollController _scrollController;
 
@@ -49,11 +50,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
 
-    _repository = CharacterRepository(
-      CharacterService(
-        ApiClient(),
-      ),
-    );
+    _repository = CharacterRepository(CharacterService(ApiClient()));
 
     _scrollController = ScrollController()..addListener(_onScroll);
 
@@ -248,10 +245,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildErrorState() {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 20,
-        vertical: 28,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
       decoration: BoxDecoration(
         color: AppColors.card,
         borderRadius: BorderRadius.circular(24),
@@ -266,10 +260,7 @@ class _HomePageState extends State<HomePage> {
             size: 34,
           ),
           const SizedBox(height: 12),
-          Text(
-            'Something went wrong',
-            style: AppTextStyles.cardTitle,
-          ),
+          Text('Something went wrong', style: AppTextStyles.cardTitle),
           const SizedBox(height: 6),
           Text(
             errorMessage!,
@@ -283,10 +274,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildEmptyState() {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 20,
-        vertical: 28,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
       decoration: BoxDecoration(
         color: AppColors.card,
         borderRadius: BorderRadius.circular(24),
@@ -300,10 +288,7 @@ class _HomePageState extends State<HomePage> {
             size: 34,
           ),
           const SizedBox(height: 12),
-          Text(
-            'No characters found',
-            style: AppTextStyles.cardTitle,
-          ),
+          Text('No characters found', style: AppTextStyles.cardTitle),
           const SizedBox(height: 6),
           Text(
             'Try a different name or change the selected filter.',
@@ -318,7 +303,10 @@ class _HomePageState extends State<HomePage> {
   Widget _buildCharacterList() {
     return ListView.builder(
       controller: _scrollController,
-      itemCount: characters.length + (isPaginationLoading ? 1 : 0) + (!hasMore && characters.isNotEmpty ? 1 : 0),
+      itemCount:
+          characters.length +
+          (isPaginationLoading ? 1 : 0) +
+          (!hasMore && characters.isNotEmpty ? 1 : 0),
       itemBuilder: (context, index) {
         if (index < characters.length) {
           final character = characters[index];
@@ -326,31 +314,13 @@ class _HomePageState extends State<HomePage> {
           return Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: CharacterPreviewCard(
-              imageUrl: character.image,
-              name: character.name,
-              status: character.status,
-              species: character.species,
+              character: character,
               onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (_) => CharacterDetailPage(
-                      name: character.name,
-                      status: character.status,
-                      species: character.species,
-                      imageUrl: character.image,
-                      origin: character.originName,
-                      location: character.locationName,
-                      gender: character.gender,
-                      episodes: character.episodeUrls
-                          .take(3)
-                          .map(
-                            (url) => {
-                          'name': 'Episode ${url.split('/').last}',
-                          'code': url.split('/').last,
-                        },
-                      )
-                          .toList(),
+                      characterModel: character,
                     ),
                   ),
                 );
@@ -362,9 +332,7 @@ class _HomePageState extends State<HomePage> {
         if (isPaginationLoading && index == characters.length) {
           return const Padding(
             padding: EdgeInsets.symmetric(vertical: 16),
-            child: Center(
-              child: CircularProgressIndicator(),
-            ),
+            child: Center(child: CircularProgressIndicator()),
           );
         }
 
@@ -383,26 +351,17 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final showEmpty = !isInitialLoading &&
-        errorMessage == null &&
-        characters.isEmpty;
+    final showEmpty =
+        !isInitialLoading && errorMessage == null && characters.isEmpty;
 
     return Scaffold(
       floatingActionButton: showScrollToTop
-          ? FloatingActionButton(
-        onPressed: _scrollToTop,
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.black,
-        child: const Icon(Icons.keyboard_arrow_up_rounded),
-      )
+          ? ScrollToTopButton(onTap: _scrollToTop)
           : null,
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              AppColors.backgroundTop,
-              AppColors.backgroundBottom,
-            ],
+            colors: [AppColors.backgroundTop, AppColors.backgroundBottom],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -422,22 +381,19 @@ class _HomePageState extends State<HomePage> {
                 _buildFilters(),
                 const SizedBox(height: 14),
 
-                if (isRefreshing)
-                  const LinearProgressIndicator(),
+                if (isRefreshing) const LinearProgressIndicator(),
 
                 const SizedBox(height: 10),
 
                 Expanded(
                   child: isInitialLoading
-                      ? const Center(
-                    child: CircularProgressIndicator(),
-                  )
+                      ? const Center(child: CircularProgressIndicator())
                       : errorMessage != null
                       ? Center(child: _buildErrorState())
                       : showEmpty
                       ? Center(child: _buildEmptyState())
                       : _buildCharacterList(),
-                )
+                ),
               ],
             ),
           ),
