@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:rick_and_morty/data/models/character_model.dart';
 import '../../../app/theme/app_colors.dart';
 
 class DetailAvatar extends StatelessWidget {
-  final String imageUrl;
+  final CharacterModel characterModel;
 
   const DetailAvatar({
     super.key,
-    required this.imageUrl,
+    required this.characterModel,
   });
 
   @override
@@ -24,7 +25,7 @@ class DetailAvatar extends StatelessWidget {
       ),
       child: ClipOval(
         child: Image.network(
-          imageUrl,
+          characterModel.image,
           fit: BoxFit.cover,
           errorBuilder: (_, __, ___) => Container(
             color: AppColors.surface,

@@ -1,31 +1,20 @@
 import 'package:flutter/material.dart';
+
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_text_styles.dart';
+import '../../../data/models/character_model.dart';
 
 class DetailStatusRow extends StatelessWidget {
-  final String status;
-  final String species;
+  final CharacterModel characterModel;
 
   const DetailStatusRow({
     super.key,
-    required this.status,
-    required this.species,
+    required this.characterModel,
   });
-
-  Color _statusColor() {
-    switch (status.toLowerCase()) {
-      case 'alive':
-        return AppColors.alive;
-      case 'dead':
-        return AppColors.dead;
-      default:
-        return AppColors.unknown;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
-    final color = _statusColor();
+    final color = characterModel.status.color;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -49,7 +38,7 @@ class DetailStatusRow extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               Text(
-                status,
+                characterModel.status.label,
                 style: TextStyle(
                   color: color,
                   fontSize: 17,
@@ -61,7 +50,7 @@ class DetailStatusRow extends StatelessWidget {
         ),
         const SizedBox(width: 28),
         Text(
-          species,
+          characterModel.species,
           style: AppTextStyles.pageSubtitle.copyWith(
             fontSize: 17,
             color: AppColors.textSecondary,

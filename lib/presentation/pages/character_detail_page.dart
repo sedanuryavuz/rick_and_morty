@@ -144,9 +144,7 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
             (episode) => Padding(
           padding: const EdgeInsets.only(bottom: 14),
           child: DetailEpisodeTile(
-            title: episode.name,
-            code: episode.code,
-            onTap: () {},
+            episodeModel: episode,
           ),
         ),
       )
@@ -187,7 +185,7 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
 
               Center(
                 child: DetailAvatar(
-                  imageUrl: widget.characterModel.image,
+                  characterModel: widget.characterModel,
                 ),
               ),
 
@@ -206,16 +204,13 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
               const SizedBox(height: 18),
 
               DetailStatusRow(
-                status: widget.characterModel.status.label,
-                species: widget.characterModel.species,
+                  characterModel: widget.characterModel,
               ),
 
               const SizedBox(height: 30),
 
               DetailInfoCard(
-                origin: widget.characterModel.originName,
-                location: widget.characterModel.locationName,
-                gender: widget.characterModel.gender,
+                characterModel: widget.characterModel,
               ),
 
               const SizedBox(height: 28),

@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:rick_and_morty/data/models/episode_model.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_text_styles.dart';
 
 class DetailEpisodeTile extends StatelessWidget {
-  final String title;
-  final String code;
-  final VoidCallback onTap;
+  final EpisodeModel episodeModel;
 
   const DetailEpisodeTile({
     super.key,
-    required this.title,
-    required this.code,
-    required this.onTap,
+    required this.episodeModel,
   });
 
   @override
@@ -19,7 +16,6 @@ class DetailEpisodeTile extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: onTap,
         borderRadius: BorderRadius.circular(24),
         child: Container(
           padding: const EdgeInsets.symmetric(
@@ -34,7 +30,7 @@ class DetailEpisodeTile extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  title,
+                  episodeModel.name,
                   style: AppTextStyles.cardTitle.copyWith(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
@@ -43,7 +39,7 @@ class DetailEpisodeTile extends StatelessWidget {
               ),
               const SizedBox(width: 14),
               Text(
-                code,
+                episodeModel.code,
                 style: AppTextStyles.pageSubtitle.copyWith(
                   fontSize: 17,
                   color: AppColors.textMuted,

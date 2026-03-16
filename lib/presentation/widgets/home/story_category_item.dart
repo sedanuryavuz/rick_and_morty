@@ -1,17 +1,15 @@
-
 import 'package:flutter/material.dart';
+import 'package:rick_and_morty/data/models/character_model.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_text_styles.dart';
 
 class StoryCategoryItem extends StatelessWidget {
-  final String title;
-  final String imageUrl;
+  final CharacterModel characterModel;
   final VoidCallback onTap;
 
   const StoryCategoryItem({
     super.key,
-    required this.title,
-    required this.imageUrl,
+    required this.characterModel,
     required this.onTap,
   });
 
@@ -49,7 +47,7 @@ class StoryCategoryItem extends StatelessWidget {
               ),
               child: CircleAvatar(
                 radius: 31,
-                backgroundImage: NetworkImage(imageUrl),
+                backgroundImage: NetworkImage(characterModel.image),
                 backgroundColor: AppColors.surface,
               ),
             ),
@@ -58,7 +56,7 @@ class StoryCategoryItem extends StatelessWidget {
           SizedBox(
             width: 72,
             child: Text(
-              title,
+              characterModel.name,
               style: AppTextStyles.label.copyWith(
                 color: AppColors.textPrimary,
               ),

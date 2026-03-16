@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:rick_and_morty/data/models/character_model.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_text_styles.dart';
 
 class DetailInfoCard extends StatelessWidget {
-  final String origin;
-  final String location;
-  final String gender;
+  final CharacterModel characterModel;
 
   const DetailInfoCard({
     super.key,
-    required this.origin,
-    required this.location,
-    required this.gender,
+    required this.characterModel,
   });
 
   @override
@@ -33,11 +30,11 @@ class DetailInfoCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 28),
-          _InfoRow(label: 'Origin', value: origin),
+          _InfoRow(label: 'Origin', value: characterModel.originName),
           const SizedBox(height: 22),
-          _InfoRow(label: 'Location', value: location),
+          _InfoRow(label: 'Location', value: characterModel.locationName),
           const SizedBox(height: 22),
-          _InfoRow(label: 'Gender', value: gender),
+          _InfoRow(label: 'Gender', value: characterModel.gender),
         ],
       ),
     );

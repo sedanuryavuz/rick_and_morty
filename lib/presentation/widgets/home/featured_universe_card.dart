@@ -15,7 +15,7 @@ class FeaturedUniverseCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 190,
+        height: 205,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(30),
           gradient: const LinearGradient(
@@ -31,11 +31,11 @@ class FeaturedUniverseCard extends StatelessWidget {
         child: Stack(
           children: [
             Positioned(
-              right: -20,
+              right: -10,
               top: 10,
               bottom: 10,
               child: Container(
-                width: 170,
+                width: 180,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: AppColors.primary.withValues(alpha: 0.08),
@@ -43,14 +43,14 @@ class FeaturedUniverseCard extends StatelessWidget {
               ),
             ),
             Positioned(
-              right: 14,
-              top: 22,
+              right: 15,
+              top: 34,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(28),
                 child: Image.network(
                   'https://rickandmortyapi.com/api/character/avatar/1.jpeg',
-                  width: 120,
-                  height: 146,
+                  width: 130,
+                  height: 136,
                   fit: BoxFit.cover,
                 ),
               ),
