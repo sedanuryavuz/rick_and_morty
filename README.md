@@ -39,6 +39,7 @@ Bu proje aşağıdaki teknolojiler kullanılarak geliştirilmiştir:
  
 # Proje Mimarisi
 
+```text
 lib
 ├── app
 │   └── theme
@@ -52,9 +53,9 @@ lib
 │   └── services
 └── presentation
     ├── controllers
-    └── pages
+    ├── pages
     └── widgets
-
+```
 
 ---
 
