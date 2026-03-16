@@ -97,5 +97,9 @@ Kullanılan endpointler:
 
 Uygulamaya ait ekran görüntüleri aşağıda yer almaktadır.
 
+![Home](screenshots/home.png)
+![Characters](screenshots/character-search.png)
+![Detail](screenshots/character-details.png)
+
 
 
