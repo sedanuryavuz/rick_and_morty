@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:rick_and_morty/data/models/character_model.dart';
 
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_text_styles.dart';
-import '../../data/models/episode_model.dart';
 import '../../data/repositories/episode_repository.dart';
 import '../../data/services/episode_service.dart';
+import '../controllers/character_detail_provider.dart';
 
 import '../widgets/character/detail_avatar.dart';
 import '../widgets/character/detail_episode_tile.dart';
@@ -14,39 +15,49 @@ import '../widgets/character/detail_info_card.dart';
 import '../widgets/character/detail_status_row.dart';
 import '../widgets/common/scroll_to_top_button.dart';
 
-class CharacterDetailPage extends StatefulWidget {
+class CharacterDetailPage extends StatelessWidget {
   final CharacterModel characterModel;
+
   const CharacterDetailPage({
     super.key,
     required this.characterModel,
   });
 
   @override
-  State<CharacterDetailPage> createState() => _CharacterDetailPageState();
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) => CharacterDetailProvider(
+        EpisodeRepository(
+          EpisodeService(),
+        ),
+      )..loadEpisodes(characterModel.episodeUrls),
+      child: _CharacterDetailView(
+        characterModel: characterModel,
+      ),
+    );
+  }
 }
 
-class _CharacterDetailPageState extends State<CharacterDetailPage> {
-  late final EpisodeRepository _episodeRepository;
+class _CharacterDetailView extends StatefulWidget {
+  final CharacterModel characterModel;
+
+  const _CharacterDetailView({
+    required this.characterModel,
+  });
+
+  @override
+  State<_CharacterDetailView> createState() => _CharacterDetailViewState();
+}
+
+class _CharacterDetailViewState extends State<_CharacterDetailView> {
   late final ScrollController _scrollController;
 
-  List<EpisodeModel> episodes = [];
-
-  bool isLoadingEpisodes = true;
   bool showScrollToTop = false;
-
-  String? episodeError;
 
   @override
   void initState() {
     super.initState();
-
-    _episodeRepository = EpisodeRepository(
-      EpisodeService(),
-    );
-
     _scrollController = ScrollController()..addListener(_onScroll);
-
-    _loadEpisodes();
   }
 
   @override
@@ -78,77 +89,51 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
     );
   }
 
-  List<int> _extractEpisodeIds(List<String> urls) {
-    return urls
-        .map((url) => int.tryParse(url.split('/').last))
-        .whereType<int>()
-        .toList();
-  }
-
-  Future<void> _loadEpisodes() async {
-    setState(() {
-      isLoadingEpisodes = true;
-      episodeError = null;
-    });
-
-    try {
-      final ids = _extractEpisodeIds(widget.characterModel.episodeUrls);
-      final result = await _episodeRepository.getEpisodesByIds(ids);
-
-      setState(() {
-        episodes = result;
-        isLoadingEpisodes = false;
-      });
-    } catch (e) {
-      setState(() {
-        episodes = [];
-        episodeError = e.toString();
-        isLoadingEpisodes = false;
-      });
-    }
-  }
-
   Widget _buildEpisodeSection() {
-    if (isLoadingEpisodes) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 20),
-        child: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
+    return Consumer<CharacterDetailProvider>(
+      builder: (context, provider, child) {
+        if (provider.isLoadingEpisodes) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 20),
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
 
-    if (episodeError != null) {
-      return Padding(
-        padding: const EdgeInsets.only(top: 8),
-        child: Text(
-          'Episodes could not be loaded.',
-          style: AppTextStyles.cardSubtitle,
-        ),
-      );
-    }
+        if (provider.episodeError != null) {
+          return Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              provider.episodeError!,
+              style: AppTextStyles.cardSubtitle,
+            ),
+          );
+        }
 
-    if (episodes.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.only(top: 8),
-        child: Text(
-          'No episodes found.',
-          style: AppTextStyles.cardSubtitle,
-        ),
-      );
-    }
+        if (provider.episodes.isEmpty) {
+          return Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              'No episodes found.',
+              style: AppTextStyles.cardSubtitle,
+            ),
+          );
+        }
 
-    return Column(
-      children: episodes
-          .map(
-            (episode) => Padding(
-          padding: const EdgeInsets.only(bottom: 14),
-          child: DetailEpisodeTile(
-            episodeModel: episode,
-          ),
-        ),
-      )
-          .toList(),
+        return Column(
+          children: provider.episodes
+              .map(
+                (episode) => Padding(
+              padding: const EdgeInsets.only(bottom: 14),
+              child: DetailEpisodeTile(
+                episodeModel: episode,
+              ),
+            ),
+          )
+              .toList(),
+        );
+      },
     );
   }
 
@@ -180,17 +165,13 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
                 title: 'Character Details',
                 onBackTap: () => Navigator.pop(context),
               ),
-
               const SizedBox(height: 34),
-
               Center(
                 child: DetailAvatar(
                   characterModel: widget.characterModel,
                 ),
               ),
-
               const SizedBox(height: 20),
-
               Text(
                 widget.characterModel.name,
                 textAlign: TextAlign.center,
@@ -200,21 +181,15 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
                   height: 1.0,
                 ),
               ),
-
               const SizedBox(height: 18),
-
               DetailStatusRow(
-                  characterModel: widget.characterModel,
+                characterModel: widget.characterModel,
               ),
-
               const SizedBox(height: 30),
-
               DetailInfoCard(
                 characterModel: widget.characterModel,
               ),
-
               const SizedBox(height: 28),
-
               Text(
                 'Episodes',
                 style: AppTextStyles.cardTitle.copyWith(
@@ -222,9 +197,7 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
                   fontWeight: FontWeight.w700,
                 ),
               ),
-
               const SizedBox(height: 16),
-
               _buildEpisodeSection(),
             ],
           ),

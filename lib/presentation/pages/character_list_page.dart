@@ -1,65 +1,50 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_text_styles.dart';
-import '../../core/enums/character_status.dart';
-import '../../core/network/api_client.dart';
 import '../../data/models/character_model.dart';
-import '../../data/repositories/character_repository.dart';
-import '../../data/services/character_service.dart';
+import '../controllers/character_list_provider.dart';
 import '../widgets/character/character_preview_card.dart';
 import '../widgets/common/app_search_bar.dart';
 import '../widgets/common/filter_chip.dart';
 import '../widgets/common/scroll_to_top_button.dart';
 import 'character_detail_page.dart';
 
-class CharacterListPage extends StatefulWidget {
+class CharacterListPage extends StatelessWidget {
   const CharacterListPage({super.key});
 
   @override
-  State<CharacterListPage> createState() => _CharacterListPageState();
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) => CharacterListProvider(
+        context.read(),
+      )..loadInitialCharacters(),
+      child: const _CharacterListView(),
+    );
+  }
 }
 
-class _CharacterListPageState extends State<CharacterListPage> {
-  late final CharacterRepository _repository;
+class _CharacterListView extends StatefulWidget {
+  const _CharacterListView();
+
+  @override
+  State<_CharacterListView> createState() => _CharacterListViewState();
+}
+
+class _CharacterListViewState extends State<_CharacterListView> {
   late final ScrollController _scrollController;
 
-  final List<CharacterStatus> filters = CharacterStatus.values;
-
-  int selectedFilterIndex = 0;
-  String searchQuery = '';
-
-  List<CharacterModel> characters = [];
-
-  bool isInitialLoading = true;
-  bool isPaginationLoading = false;
-  bool isRefreshing = false;
-  bool hasMore = true;
   bool showScrollToTop = false;
-
-  String? errorMessage;
-
-  int currentPage = 1;
-  int totalCount = 0;
-
-  Timer? _debounce;
 
   @override
   void initState() {
     super.initState();
-
-    _repository = CharacterRepository(CharacterService(ApiClient()));
-
     _scrollController = ScrollController()..addListener(_onScroll);
-
-    _loadInitialCharacters();
   }
 
   @override
   void dispose() {
-    _debounce?.cancel();
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
@@ -81,96 +66,8 @@ class _CharacterListPageState extends State<CharacterListPage> {
     }
 
     if (position.pixels >= position.maxScrollExtent - 250) {
-      _loadMoreCharacters();
+      context.read<CharacterListProvider>().loadMoreCharacters();
     }
-  }
-
-  Future<void> _loadInitialCharacters() async {
-    final bool firstLoad = characters.isEmpty;
-
-    setState(() {
-      if (firstLoad) {
-        isInitialLoading = true;
-      } else {
-        isRefreshing = true;
-      }
-
-      errorMessage = null;
-      currentPage = 1;
-      hasMore = true;
-    });
-
-    try {
-      final response = await _repository.getCharacters(
-        page: 1,
-        name: searchQuery.trim(),
-        status: filters[selectedFilterIndex].apiValue,
-      );
-
-      setState(() {
-        characters = response.results;
-        totalCount = response.count;
-        currentPage = 1;
-        hasMore = response.next != null;
-        isInitialLoading = false;
-        isRefreshing = false;
-      });
-    } catch (e) {
-      setState(() {
-        characters = [];
-        totalCount = 0;
-        errorMessage = e.toString();
-        hasMore = false;
-        isInitialLoading = false;
-        isRefreshing = false;
-      });
-    }
-  }
-
-  Future<void> _loadMoreCharacters() async {
-    if (isInitialLoading || isPaginationLoading || !hasMore) return;
-
-    setState(() {
-      isPaginationLoading = true;
-    });
-
-    final nextPage = currentPage + 1;
-
-    try {
-      final response = await _repository.getCharacters(
-        page: nextPage,
-        name: searchQuery.trim(),
-        status: filters[selectedFilterIndex].apiValue,
-      );
-
-      setState(() {
-        characters.addAll(response.results);
-        totalCount = response.count;
-        currentPage = nextPage;
-        hasMore = response.next != null;
-        isPaginationLoading = false;
-      });
-    } catch (_) {
-      setState(() {
-        isPaginationLoading = false;
-      });
-    }
-  }
-
-  void _onSearchChanged(String value) {
-    searchQuery = value;
-
-    _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 300), () {
-      _loadInitialCharacters();
-    });
-  }
-
-  void _onFilterChanged(int index) {
-    setState(() {
-      selectedFilterIndex = index;
-    });
-    _loadInitialCharacters();
   }
 
   Future<void> _scrollToTop() async {
@@ -181,7 +78,7 @@ class _CharacterListPageState extends State<CharacterListPage> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(CharacterListProvider provider) {
     return Row(
       children: [
         Container(
@@ -213,8 +110,8 @@ class _CharacterListPageState extends State<CharacterListPage> {
               ),
               const SizedBox(height: 4),
               Text(
-                totalCount > 0
-                    ? '${characters.length} / $totalCount characters'
+                provider.totalCount > 0
+                    ? '${provider.characters.length} / ${provider.totalCount} characters'
                     : 'Search and explore Rick & Morty characters.',
                 style: AppTextStyles.pageSubtitle,
               ),
@@ -225,25 +122,25 @@ class _CharacterListPageState extends State<CharacterListPage> {
     );
   }
 
-  Widget _buildFilters() {
+  Widget _buildFilters(CharacterListProvider provider) {
     return SizedBox(
       height: 44,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        itemCount: filters.length,
+        itemCount: provider.filters.length,
         separatorBuilder: (_, __) => const SizedBox(width: 10),
         itemBuilder: (context, index) {
           return FilterChipItem(
-            title: filters[index].label,
-            isSelected: selectedFilterIndex == index,
-            onTap: () => _onFilterChanged(index),
+            title: provider.filters[index].label,
+            isSelected: provider.selectedFilterIndex == index,
+            onTap: () => provider.onFilterChanged(index),
           );
         },
       ),
     );
   }
 
-  Widget _buildErrorState() {
+  Widget _buildErrorState(String errorMessage) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
       decoration: BoxDecoration(
@@ -263,7 +160,7 @@ class _CharacterListPageState extends State<CharacterListPage> {
           Text('Something went wrong', style: AppTextStyles.cardTitle),
           const SizedBox(height: 6),
           Text(
-            errorMessage!,
+            errorMessage,
             style: AppTextStyles.cardSubtitle,
             textAlign: TextAlign.center,
           ),
@@ -300,16 +197,15 @@ class _CharacterListPageState extends State<CharacterListPage> {
     );
   }
 
-  Widget _buildCharacterList() {
+  Widget _buildCharacterList(CharacterListProvider provider) {
     return ListView.builder(
       controller: _scrollController,
-      itemCount:
-          characters.length +
-          (isPaginationLoading ? 1 : 0) +
-          (!hasMore && characters.isNotEmpty ? 1 : 0),
+      itemCount: provider.characters.length +
+          (provider.isPaginationLoading ? 1 : 0) +
+          (!provider.hasMore && provider.characters.isNotEmpty ? 1 : 0),
       itemBuilder: (context, index) {
-        if (index < characters.length) {
-          final character = characters[index];
+        if (index < provider.characters.length) {
+          final CharacterModel character = provider.characters[index];
 
           return Padding(
             padding: const EdgeInsets.only(bottom: 12),
@@ -329,10 +225,13 @@ class _CharacterListPageState extends State<CharacterListPage> {
           );
         }
 
-        if (isPaginationLoading && index == characters.length) {
+        if (provider.isPaginationLoading &&
+            index == provider.characters.length) {
           return const Padding(
             padding: EdgeInsets.symmetric(vertical: 16),
-            child: Center(child: CircularProgressIndicator()),
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
           );
         }
 
@@ -351,54 +250,66 @@ class _CharacterListPageState extends State<CharacterListPage> {
 
   @override
   Widget build(BuildContext context) {
-    final showEmpty =
-        !isInitialLoading && errorMessage == null && characters.isEmpty;
+    return Consumer<CharacterListProvider>(
+      builder: (context, provider, child) {
+        final showEmpty = !provider.isInitialLoading &&
+            provider.errorMessage == null &&
+            provider.characters.isEmpty;
 
-    return Scaffold(
-      floatingActionButton: showScrollToTop
-          ? ScrollToTopButton(onTap: _scrollToTop)
-          : null,
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [AppColors.backgroundTop, AppColors.backgroundBottom],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
-            child: Column(
-              children: [
-                _buildHeader(),
-                const SizedBox(height: 22),
-                AppSearchBar(
-                  hintText: 'Search characters',
-                  onChanged: _onSearchChanged,
+        return Scaffold(
+          floatingActionButton: showScrollToTop
+              ? ScrollToTopButton(onTap: _scrollToTop)
+              : null,
+          body: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  AppColors.backgroundTop,
+                  AppColors.backgroundBottom,
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+                child: Column(
+                  children: [
+                    _buildHeader(provider),
+                    const SizedBox(height: 22),
+                    AppSearchBar(
+                      hintText: 'Search characters',
+                      onChanged: provider.onSearchChanged,
+                    ),
+                    const SizedBox(height: 18),
+                    _buildFilters(provider),
+                    const SizedBox(height: 14),
+                    if (provider.isRefreshing)
+                      const LinearProgressIndicator(),
+                    const SizedBox(height: 10),
+                    Expanded(
+                      child: provider.isInitialLoading
+                          ? const Center(
+                        child: CircularProgressIndicator(),
+                      )
+                          : provider.errorMessage != null
+                          ? Center(
+                        child: _buildErrorState(
+                          provider.errorMessage!,
+                        ),
+                      )
+                          : showEmpty
+                          ? Center(child: _buildEmptyState())
+                          : _buildCharacterList(provider),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 18),
-                _buildFilters(),
-                const SizedBox(height: 14),
-
-                if (isRefreshing) const LinearProgressIndicator(),
-
-                const SizedBox(height: 10),
-
-                Expanded(
-                  child: isInitialLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : errorMessage != null
-                      ? Center(child: _buildErrorState())
-                      : showEmpty
-                      ? Center(child: _buildEmptyState())
-                      : _buildCharacterList(),
-                ),
-              ],
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
