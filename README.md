@@ -1,16 +1,101 @@
-# rick_and_morty
+# Rick & Morty Character Explorer
 
-A new Flutter project.
+Find characters across infinite realities.
 
-## Getting Started
+Rick & Morty evrenindeki karakterleri keşfetmenizi sağlayan modern bir Flutter uygulamasıdır.  
+Uygulama, Rick & Morty Public API kullanarak karakter bilgilerini, bölümleri ve karakter detaylarını görüntülemeyi sağlar.
 
-This project is a starting point for a Flutter application.
+Kullanıcılar karakterleri arayabilir, durumlarına göre filtreleyebilir, popüler karakterleri görüntüleyebilir ve karakterlerin yer aldığı bölümleri inceleyebilir.
 
-A few resources to get you started if this is your first Flutter project:
+---
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+# Özellikler
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- Rick & Morty karakterlerini listeleme
+- Karakter ismine göre arama
+- Duruma göre filtreleme (Alive, Dead, Unknown)
+- Sonsuz scroll (pagination)
+- Karakter detay sayfası
+- Karakterin yer aldığı bölümleri görüntüleme
+- Trending karakterler bölümü
+- Quick Discover karakter listesi
+- Bölümler
+- Scroll to top butonu
+- Modüler ve temiz mimari
+
+---
+
+# Tech Stack
+
+Bu proje aşağıdaki teknolojiler kullanılarak geliştirilmiştir:
+
+- Flutter
+- Dart
+- Provider (State Management)
+- REST API
+- Layered Architecture
+
+ ---
+ 
+# Proje Mimarisi
+
+lib
+├── app
+│   └── theme
+├── core
+│   ├── constants
+│   ├── enums
+│   └── network
+├── data
+│   ├── models
+│   ├── repositories
+│   └── services
+└── presentation
+    ├── controllers
+    └── pages
+    └── widgets
+
+
+---
+
+# Uygulama Sayfaları
+
+## Ana Sayfa
+
+- Quick Discover karakterleri
+- Trending karakterler
+- İlk 5 Bölümler
+
+## Karakter Listesi
+
+- Karakter arama
+- Duruma göre filtreleme
+- Sonsuz scroll
+
+## Karakter Detayı
+
+- Karakter bilgileri
+- Karakterin yer aldığı bölümler
+- Scroll to top butonu
+
+---
+
+# Kullanılan API
+
+Bu proje aşağıdaki public API kullanılarak geliştirilmiştir:
+
+https://rickandmortyapi.com/
+
+Kullanılan endpointler:
+
+- `/character`
+- `/episode`
+
+---
+
+# Ekran Görüntüleri
+
+Uygulamaya ait ekran görüntüleri aşağıda yer almaktadır.
+
+
+
